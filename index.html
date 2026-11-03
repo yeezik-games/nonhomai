@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Non ho mai</title>
 <meta name="theme-color" content="#120f1f">
-<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png?v=1793700000">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1793700000">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1793700000">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png?v=1793710000">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1793710000">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=1793710000">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Non ho mai">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +17,7 @@
 <meta name="description" content="Non ho mai: scopri cosa hanno combinato i tuoi amici. Il gioco da fare in compagnia, ognuno dal proprio telefono.">
 <meta property="og:title" content="Non ho mai">
 <meta property="og:description" content="Scopri cosa hanno combinato i tuoi amici">
-<meta property="og:image" content="https://yeezikdev.github.io/nonhomai/icons/icon-512.png?v=1793700000">
+<meta property="og:image" content="https://yeezikdev.github.io/nonhomai/icons/icon-512.png?v=1793710000">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -684,6 +684,17 @@ body.has-tabs #toast{bottom:calc(92px + env(safe-area-inset-bottom))}
 .pack:disabled{cursor:default}
 .hint.small{font-size:13px;margin-top:12px}
 .soul small.pk{color:#ff7d8f}
+/* interruttore pacchetti */
+.toggle{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin:16px 0 12px;padding:12px 14px;border-radius:16px;background:rgba(29,24,51,.9);border:1.5px solid var(--line);color:var(--text);transition:border-color .2s,background .2s}
+.toggle.on{border-color:rgba(255,92,138,.6);background:rgba(255,92,138,.1)}
+.toggle:disabled{cursor:default}
+.toggle .tl{flex:1;min-width:0}
+.toggle b{display:block;font-size:15px}
+.toggle small{display:block;font-size:12.5px;color:#b9b3d9;margin-top:2px}
+.sw{flex:none;width:50px;height:30px;border-radius:999px;background:#3a3360;position:relative;transition:background .25s}
+.sw i{position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .3s var(--spring)}
+.toggle.on .sw{background:linear-gradient(100deg,var(--acc),#ff9f43)}
+.toggle.on .sw i{transform:translateX(20px)}
 /* un solo telefono */
 .lhead{display:flex;align-items:center;gap:8px;margin:0 0 6px}
 .lhead .rnd{margin:0 auto}
@@ -707,14 +718,14 @@ body.has-tabs #toast{bottom:calc(92px + env(safe-area-inset-bottom))}
 <footer class="ver"><button id="verBtn" type="button"></button></footer>
 <nav id="tabs" aria-label="Navigazione"></nav>
 <div id="toast"></div>
-<script src="js/core.js?v=1793700000"></script>
-<script src="js/frasi.js?v=1793700000"></script>
-<script src="js/sfx.js?v=1793700000"></script>
-<script src="js/game.js?v=1793700000"></script>
-<script src="js/app.js?v=1793700000"></script>
-<script src="js/stats.js?v=1793700000"></script>
-<script src="js/local.js?v=1793700000"></script>
-<script src="js/share.js?v=1793700000"></script>
-<script src="js/boot.js?v=1793700000"></script>
+<script src="js/core.js?v=1793710000"></script>
+<script src="js/frasi.js?v=1793710000"></script>
+<script src="js/sfx.js?v=1793710000"></script>
+<script src="js/game.js?v=1793710000"></script>
+<script src="js/app.js?v=1793710000"></script>
+<script src="js/stats.js?v=1793710000"></script>
+<script src="js/local.js?v=1793710000"></script>
+<script src="js/share.js?v=1793710000"></script>
+<script src="js/boot.js?v=1793710000"></script>
 </body>
 </html>

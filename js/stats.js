@@ -88,8 +88,8 @@ function openResetStats(){
 }
 
 // ===== Versione e novità =====
-const VERSION='1.0';
-const NOTES=[{v:'1.0',d:'3 novembre 2026',first:true,items:[]}];
+const VERSION='1.1';
+const NOTES=[{v:'1.1',d:'3 novembre 2026',items:[['m','Di base si gioca solo con le frasi scritte da voi'],['n','Interruttore nella stanza per aggiungere le frasi già pronte dei pacchetti'],['m','Si possono scrivere fino a 5 frasi a testa']]},{v:'1.0',d:'3 novembre 2026',first:true,items:[]}];
 const NTAG={n:['Nuovo','tn'],m:['Migliorato','tm'],c:['Corretto','tc2']};
 function howtoHtml(){
   return`<div class="howto">
@@ -107,7 +107,7 @@ function howtoHtml(){
       <div class="hcard hwin"><span class="hic">❤️</span><p><b>Vite:</b> partite tutti con 10 vite (o 5, o 15). Ogni “L'ho fatto” ne costa una.</p></div>
       <div class="hcard hwin"><span class="hic">🎯</span><p><b>Colpo all'autore:</b> se la frase è tua, per ogni amico che l'ha fatto <b>gli rubi una vita</b>. Anche se eri a zero torni in gioco!</p></div>
       <div class="hcard hwin"><span class="hic">🦄</span><p><b>Unico al mondo:</b> se sei l'unico ad averlo fatto perdi 2 vite (o, se l'host sceglie così, ne guadagni una).</p></div>
-      <div class="hcard hwin"><span class="hic">🃏</span><p><b>Pacchetti:</b> oltre alle vostre frasi, l'app pesca da Serate, Viaggi, Figuracce, Amore, Piccante e altri.</p></div>
+      <div class="hcard hwin"><span class="hic">🃏</span><p><b>Le vostre frasi:</b> prima di iniziare ognuno scrive le sue frasi “Non ho mai…” e si gioca con quelle. Se l'host attiva le frasi già pronte, si aggiungono quelle dei pacchetti (Serate, Viaggi, Figuracce, Piccante…).</p></div>
     </div>
     <h3>Modalità</h3>
     <div class="hmodes">

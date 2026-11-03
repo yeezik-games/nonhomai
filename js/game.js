@@ -1,11 +1,11 @@
 // ===== Non ho mai · gioco online (logica dell'host, rete, schermate della stanza) =====
-const LIVES_OPT=[5,10,15],WRITE_OPT=[0,1,2,3],ROUNDS_OPT=[10,15,20,30];
+const LIVES_OPT=[5,10,15],WRITE_OPT=[0,1,2,3,4,5],ROUNDS_OPT=[10,15,20,30];
 const UNICO={pen:{t:'−2 vite',d:'Chi è l\'unico ad averlo fatto perde 2 vite'},bonus:{t:'+1 vita',d:'Chi è l\'unico ad averlo fatto guadagna 1 vita'}};
 let myDraft=[];
 
 // ===== Stato =====
 function newState(){return{phase:'lobby',hostId:me.id,players:[mkPlayer(me.id,me.name,me.color||COLORS[0],me.uid||null)],
-  cfg:{lives:10,write:2,rounds:15,unico:'pen',packs:[...DEFAULT_PACKS]},
+  cfg:{lives:10,write:3,rounds:15,unico:'pen',usePacks:false,packs:[...DEFAULT_PACKS]},
   written:{},queue:[],round:0,total:0,cur:null,answers:{},last:null,history:[],usedPack:[],matchId:null,rematch:[]}}
 function mkPlayer(id,name,color,uid){return{id,name,color,uid,lives:10,did:0,never:0,uniques:0,stolen:0,out:null}}
 function pickColor(S,want){const used=new Set(S.players.map(p=>p.color));if(want&&/^#[0-9a-fA-F]{6}$/.test(want)&&!used.has(want))return want;return COLORS.find(c=>!used.has(c))||COLORS[S.players.length%COLORS.length]}
@@ -28,8 +28,8 @@ function packPool(S){
 function buildQueue(){
   const S=state;
   const mine=[];for(const [id,arr] of Object.entries(S.written||{}))(arr||[]).forEach(t=>{if(S.players.some(p=>p.id===id))mine.push({t,by:id})});
-  const total=Math.min(40,Math.max(S.cfg.rounds,mine.length));
-  const fill=packPool(S).slice(0,Math.max(0,total-mine.length));
+  const total=S.cfg.usePacks?Math.min(40,Math.max(S.cfg.rounds,mine.length)):Math.min(40,mine.length);
+  const fill=!S.cfg.usePacks||!S.cfg.packs.length?[]:packPool(S).slice(0,Math.max(0,total-mine.length));
   // le frasi dei giocatori sparse lungo la partita, mai due dello stesso autore di fila se possibile
   let q=shuffle([...mine,...fill]);
   for(let i=1;i<q.length;i++)if(q[i].by&&q[i].by===q[i-1].by){const j=q.findIndex((x,k)=>k>i&&x.by!==q[i].by);if(j>0)[q[i],q[j]]=[q[j],q[i]]}
@@ -85,7 +85,8 @@ function doRematch(){
   if(S.players.length<2){S.phase='lobby';return}
   startMatch();
 }
-function canStart(S){return S.players.length>=2&&(S.cfg.write>0||S.cfg.packs.length>0)}
+function canStart(S){return S.players.length>=2&&(S.cfg.write>0||(S.cfg.usePacks&&S.cfg.packs.length>0))}
+function startHint(S){if(S.players.length<2)return'Servono almeno 2 giocatori';if(!canStart(S))return S.cfg.usePacks?'Scegli almeno un pacchetto':'Scegli quante frasi scrivere';return`Inizia la partita (${S.players.length} giocatori)`}
 
 function handle(a){
   const S=state;if(!S)return;const p=S.players.find(x=>x.id===a.from),isH=a.from===S.hostId;
@@ -96,7 +97,7 @@ function handle(a){
         S.players.push(np)}break}
     case 'cfg':if(isH&&S.phase==='lobby'){const c=a.cfg||{};
       if(LIVES_OPT.includes(c.lives))S.cfg.lives=c.lives;if(WRITE_OPT.includes(c.write))S.cfg.write=c.write;if(ROUNDS_OPT.includes(c.rounds))S.cfg.rounds=c.rounds;
-      if(UNICO[c.unico])S.cfg.unico=c.unico;if(Array.isArray(c.packs))S.cfg.packs=c.packs.filter(k=>PACKS[k]);
+      if(UNICO[c.unico])S.cfg.unico=c.unico;if(typeof c.usePacks==='boolean')S.cfg.usePacks=c.usePacks;if(!S.cfg.usePacks&&!S.cfg.write)S.cfg.write=3;if(Array.isArray(c.packs))S.cfg.packs=c.packs.filter(k=>PACKS[k]);
       S.players.forEach(x=>x.lives=S.cfg.lives)}break;
     case 'start':if(isH&&S.phase==='lobby'&&canStart(S))startMatch();break;
     case 'write':if(S.phase==='write'&&p){S.written[a.from]=(Array.isArray(a.list)?a.list:[]).map(cleanPhrase).filter(Boolean).slice(0,3);markDone(S,a.from);autoWrite()}break;
@@ -301,19 +302,19 @@ function cfgHtml(S){
   const seg=(k,opts,lab)=>`<div class="seg">${opts.map(v=>`<button type="button" ${dis} data-a="cfg" data-k="${k}" data-v="${v}" class="${c[k]===v?'on':''}">${lab(v)}</button>`).join('')}</div>`;
   return`<div class="cfgbox">
     <div class="setting"><span>❤️ Vite iniziali</span>${seg('lives',LIVES_OPT,v=>v)}</div>
-    <div class="setting"><span>✍️ Frasi da scrivere a testa</span>${seg('write',WRITE_OPT,v=>v)}</div>
-    <div class="setting"><span>🃏 Frasi in partita</span>${seg('rounds',ROUNDS_OPT,v=>v)}</div>
+    <div class="setting"><span>✍️ Frasi da scrivere a testa</span>${seg('write',c.usePacks?WRITE_OPT:WRITE_OPT.filter(v=>v>0),v=>v)}</div>
     <div class="setting"><span>🦄 Unico al mondo</span><div class="seg">${Object.entries(UNICO).map(([k,u])=>`<button type="button" ${dis} data-a="cfg" data-k="unico" data-v="${k}" class="${c.unico===k?'on':''}">${u.t}</button>`).join('')}</div></div>
-    <div class="lbl" style="margin:16px 0 8px">Pacchetti di frasi</div>
-    <div class="packs">${PACK_KEYS.map(k=>{const P=PACKS[k],on=c.packs.includes(k);return`<button type="button" ${dis} class="pack ${on?'on':''}" data-a="pack" data-k="${k}"><span>${P.e}</span><b>${P.t}</b><small>${P.d}</small></button>`}).join('')}</div>
-    ${c.write>0?`<p class="hint small">Prima di iniziare ognuno scrive ${c.write} ${c.write===1?'frase':'frasi'}: le vostre escono tutte, il resto arriva dai pacchetti.</p>`:''}
+    <button type="button" ${dis} class="toggle ${c.usePacks?'on':''}" data-a="usepacks" role="switch" aria-checked="${c.usePacks?'true':'false'}"><span class="tl"><b>🃏 Aggiungi frasi già pronte</b><small>Mescola alle vostre frasi quelle dei pacchetti</small></span><span class="sw"><i></i></span></button>
+    ${c.usePacks?`<div class="setting"><span>Frasi in partita</span>${seg('rounds',ROUNDS_OPT,v=>v)}</div>
+    <div class="packs">${PACK_KEYS.map(k=>{const P=PACKS[k],on=c.packs.includes(k);return`<button type="button" ${dis} class="pack ${on?'on':''}" data-a="pack" data-k="${k}"><span>${P.e}</span><b>${P.t}</b><small>${P.d}</small></button>`}).join('')}</div>`:''}
+    <p class="hint small">${c.usePacks?(c.write>0?`Ognuno scrive ${c.write} ${c.write===1?'frase':'frasi'}: le vostre escono tutte, il resto arriva dai pacchetti.`:'Si gioca solo con le frasi dei pacchetti.'):`Prima di iniziare ognuno scrive ${c.write} ${c.write===1?'frase':'frasi'} “Non ho mai…”: si gioca solo con quelle (${c.write*S.players.length} in tutto).`}</p>
   </div>`;
 }
 function updateDyn(){
   const S=state;
   const pl=$('#plist');if(pl){pl.innerHTML=S.players.map(p=>{const isNew=!seenPlayers.has(p.id);return`<div class="pl ${online.has(p.id)?'':'off'} ${isNew?'new':''}">${av(p)}<span>${nm(p)}</span>${p.id===S.hostId?'<em>host</em>':''}${p.id===me.id?'<em>tu</em>':''}${isHost&&!online.has(p.id)&&p.id!==S.hostId?`<button class="x" data-a="kick" data-id="${p.id}">rimuovi</button>`:''}</div>`}).join('');if(seenPlayers.size&&S.players.some(p=>!seenPlayers.has(p.id)&&p.id!==me.id))SFX.join();S.players.forEach(p=>seenPlayers.add(p.id))}
   const cf=$('#cfg');if(cf)cf.innerHTML=cfgHtml(S);
-  const startB=$('#startBtn');if(startB){const few=S.players.length<2;startB.disabled=!canStart(S);startB.textContent=few?'Servono almeno 2 giocatori':!canStart(S)?'Scegli almeno un pacchetto':`Inizia la partita (${S.players.length} giocatori)`}
+  const startB=$('#startBtn');if(startB){const few=S.players.length<2;startB.disabled=!canStart(S);startB.textContent=startHint(S)}
   const st=$('#status');if(st){
     const done=id=>S.phase==='write'?(S.wdone||[]).includes(id):S.answers[id]!=null;
     st.innerHTML=`<div class="chips">${S.players.map(p=>{const d=done(p.id);return`<span class="chip ${d?'done':''} ${online.has(p.id)?'':'off'}">${av(p,'sm')}${nm(p)} <span class="st">${d?'✅':'⏳'}</span></span>`}).join('')}</div>`}
@@ -332,6 +333,7 @@ function act(a,el){
     case 'copy':copyLink();break;
     case 'exit':if(confirm(isHost?"Sei l'host: se esci la partita si ferma per tutti (potrai riprenderla dalla home). Uscire?":'Uscire dalla stanza?')){leave();goHome()}break;
     case 'cfg':{const k=el.dataset.k,v=k==='unico'?el.dataset.v:+el.dataset.v;send({type:'cfg',cfg:{...S.cfg,[k]:v}});SFX.tap();break}
+    case 'usepacks':send({type:'cfg',cfg:{...S.cfg,usePacks:!S.cfg.usePacks}});SFX.tap();break;
     case 'pack':{const k=el.dataset.k,p=S.cfg.packs.includes(k)?S.cfg.packs.filter(x=>x!==k):[...S.cfg.packs,k];send({type:'cfg',cfg:{...S.cfg,packs:p}});SFX.tap();break}
     case 'start':buzz(30);send({type:'start'});break;
     case 'kick':send({type:'kick',id:el.dataset.id});break;
