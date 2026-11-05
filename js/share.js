@@ -57,7 +57,7 @@ async function makeResultImage(data){
   }
   // piè di pagina
   x.fillStyle='#a59fc4';x.font=F(500,30);x.fillText(new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),W/2,H-120);
-  x.fillStyle='#f5f3ff';x.font=F(700,36);x.fillText('Gioca anche tu: yeezikdev.github.io/nonhomai',W/2,H-70);
+  x.fillStyle='#f5f3ff';x.font=F(700,36);x.fillText('Gioca anche tu: yeezik-games.github.io/nonhomai',W/2,H-70);
   return new Promise(res=>c.toBlob(res,'image/png'));
 }
 function bestPhrase(history,nameOf){
@@ -68,7 +68,7 @@ async function shareResult(data){
   toast('Preparo l’immagine…',1500);
   const blob=await makeResultImage(data);if(!blob){toast('Non riesco a creare l’immagine');return}
   const file=new File([blob],'nonhomai-risultato.png',{type:'image/png'});
-  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Non ho mai',text:'Guarda com’è andata a Non ho mai! yeezikdev.github.io/nonhomai'});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Non ho mai',text:'Guarda com’è andata a Non ho mai! https://yeezik-games.github.io/nonhomai/'});return}}catch(e){if(e&&e.name==='AbortError')return}
   const url=URL.createObjectURL(blob);
   const m=document.createElement('div');m.className='modal center-modal';
   m.innerHTML=`<div class="sharebox"><img src="${url}" alt="Immagine del risultato"><p class="hint">Tieni premuto sull’immagine per salvarla, oppure scaricala.</p><div class="grid2"><a class="btn primary" href="${url}" download="nonhomai-risultato.png">Scarica</a><button class="btn ghost close" type="button">Chiudi</button></div></div>`;
